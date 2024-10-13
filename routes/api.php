@@ -9,3 +9,4 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::get('/questionnaire', [QuestionnaireController::class, 'get']);
+Route::post('/questionnaire/answers', [QuestionnaireController::class, 'evaluate']);

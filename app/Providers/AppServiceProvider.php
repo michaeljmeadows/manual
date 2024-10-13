@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Actions\EvaluateAnswersAction;
+use App\Actions\EvaluateAnswersActionInterface;
 use App\Repositories\ProductRepository;
 use App\Repositories\ProductRepositoryInterface;
 use App\Repositories\QuestionRepository;
@@ -16,6 +18,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->registerRepositories();
+        $this->registerActions();
     }
 
     /**
@@ -30,5 +33,10 @@ class AppServiceProvider extends ServiceProvider
     {
         app()->bind(ProductRepositoryInterface::class, ProductRepository::class);
         app()->bind(QuestionRepositoryInterface::class, QuestionRepository::class);
+    }
+
+    protected function registerActions(): void
+    {
+        app()->bind(EvaluateAnswersActionInterface::class, EvaluateAnswersAction::class);
     }
 }

@@ -17,6 +17,8 @@ class QuestionRepository implements QuestionRepositoryInterface
                 return Question::with([
                     'answers',
                     'answers.nextQuestion',
+                    'answers.productsRecommended',
+                    'answers.productsExcluded',
                 ])->orderBy('number')->get();
             },
         );
