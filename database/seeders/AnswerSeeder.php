@@ -15,43 +15,46 @@ class AnswerSeeder extends Seeder
         '1' => [
             [
                 'text' => 'Yes',
-                'nextQuestionNumber' => '2',
+                'nextQuestionNumber' => 2,
             ],
             [
                 'text' => 'No',
-                'nextQuestionNumber' => '2',
+                'nextQuestionNumber' => 2,
                 'exclusions' => ['sildenafil_50', 'sildenafil_100', 'tadalafil_10', 'tadalafil_20'],
             ],
         ],
         '2' => [
             [
                 'text' => 'Viagra or Sildenafil',
-                'nextQuestionNumber' => '2a',
+                'nextQuestionNumber' => 2,
+                'nextQuestionPart' => 'a',
             ],
             [
                 'text' => 'Cialis or Tadalafil',
-                'nextQuestionNumber' => '2b',
+                'nextQuestionNumber' => 2,
+                'nextQuestionPart' => 'b',
             ],
             [
                 'text' => 'Both',
-                'nextQuestionNumber' => '2c',
+                'nextQuestionNumber' => 2,
+                'nextQuestionPart' => 'c',
             ],
             [
                 'text' => 'None of the above',
-                'nextQuestionNumber' => '3',
+                'nextQuestionNumber' => 3,
                 'recommendations' => ['sildenafil_50', 'tadalafil_10'],
             ],
         ],
         '2a' => [
             [
                 'text' => 'Yes',
-                'nextQuestionNumber' => '3',
+                'nextQuestionNumber' => 3,
                 'recommendations' => ['sildenafil_50'],
                 'exclusions' => ['tadalafil_10', 'tadalafil_20'],
             ],
             [
                 'text' => 'No',
-                'nextQuestionNumber' => '3',
+                'nextQuestionNumber' => 3,
                 'recommendations' => ['tadalafil_20'],
                 'exclusions' => ['sildenafil_50', 'sildenafil_100'],
             ],
@@ -59,13 +62,13 @@ class AnswerSeeder extends Seeder
         '2b' => [
             [
                 'text' => 'Yes',
-                'nextQuestionNumber' => '3',
+                'nextQuestionNumber' => 3,
                 'recommendations' => ['tadalafil_10'],
                 'exclusions' => ['sildenafil_50', 'sildenafil_100'],
             ],
             [
                 'text' => 'No',
-                'nextQuestionNumber' => '3',
+                'nextQuestionNumber' => 3,
                 'recommendations' => ['sildenafil_100'],
                 'exclusions' => ['tadalafil_10', 'tadalafil_20'],
             ],
@@ -73,57 +76,57 @@ class AnswerSeeder extends Seeder
         '2c' => [
             [
                 'text' => 'Viagra or Sildenafil',
-                'nextQuestionNumber' => '3',
+                'nextQuestionNumber' => 3,
                 'recommendations' => ['sildenafil_100'],
                 'exclusions' => ['tadalafil_10', 'tadalafil_20'],
             ],
             [
                 'text' => 'Cialis or Tadalafil',
-                'nextQuestionNumber' => '3',
+                'nextQuestionNumber' => 3,
                 'recommendations' => ['tadalafil_20'],
                 'exclusions' => ['sildenafil_50', 'sildenafil_100'],
             ],
             [
                 'text' => 'None of the above',
-                'nextQuestionNumber' => '3',
+                'nextQuestionNumber' => 3,
                 'recommendations' => ['sildenafil_100', 'tadalafil_20'],
             ],
         ],
         '3' => [
             [
                 'text' => 'Yes',
-                'nextQuestionNumber' => '4',
+                'nextQuestionNumber' => 4,
                 'exclusions' => ['sildenafil_50', 'sildenafil_100', 'tadalafil_10', 'tadalafil_20'],
             ],
             [
                 'text' => 'No',
-                'nextQuestionNumber' => '4',
+                'nextQuestionNumber' => 4,
             ],
         ],
         '4' => [
             [
                 'text' => 'Significant liver problems (such as cirrhosis of the liver) or kidney problems',
-                'nextQuestionNumber' => '5',
+                'nextQuestionNumber' => 5,
                 'exclusions' => ['sildenafil_50', 'sildenafil_100', 'tadalafil_10', 'tadalafil_20'],
             ],
             [
                 'text' => 'Currently prescribed GTN, Isosorbide mononitrate, Isosorbide dinitrate, Nicorandil (nitrates) or Rectogesic ointment',
-                'nextQuestionNumber' => '5',
+                'nextQuestionNumber' => 5,
                 'exclusions' => ['sildenafil_50', 'sildenafil_100', 'tadalafil_10', 'tadalafil_20'],
             ],
             [
                 'text' => 'Abnormal blood pressure (lower than 90/50 mmHg or higher than 160/90 mmHg)',
-                'nextQuestionNumber' => '5',
+                'nextQuestionNumber' => 5,
                 'exclusions' => ['sildenafil_50', 'sildenafil_100', 'tadalafil_10', 'tadalafil_20'],
             ],
             [
                 'text' => 'Condition affecting your penis (such as Peyronie\'s Disease, previous injuries or an inability to retract your foreskin)',
-                'nextQuestionNumber' => '5',
+                'nextQuestionNumber' => 5,
                 'exclusions' => ['sildenafil_50', 'sildenafil_100', 'tadalafil_10', 'tadalafil_20'],
             ],
             [
                 'text' => 'I don\'t have any of these conditions',
-                'nextQuestionNumber' => '5',
+                'nextQuestionNumber' => 5,
             ],
         ],
         '5' => [
@@ -159,7 +162,7 @@ class AnswerSeeder extends Seeder
     public function run(): void
     {
         $this->products = Product::all()->keyBy('reference');
-        $this->questions = Question::all()->keyBy('number');
+        $this->questions = Question::all()->keyBy('number_and_part');
 
         foreach (self::ANSWERS as $questionNumber => $answers) {
             $question = $this->questions[$questionNumber];
@@ -190,7 +193,11 @@ class AnswerSeeder extends Seeder
             return null;
         }
 
-        return $this->questions[$answerData['nextQuestionNumber']] ?? null;
+        $nextQuestionNumber = $answerData['nextQuestionNumber'];
+        $nextQuestionPart = $answerData['nextQuestionPart'] ?? '';
+        $key = $nextQuestionNumber.$nextQuestionPart;
+
+        return $this->questions[$key] ?? null;
     }
 
     protected function seedAnswerRecommendations(Answer $answer, array $answerData): void

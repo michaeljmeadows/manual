@@ -5,32 +5,22 @@ namespace App\Actions;
 use App\Exceptions\UnknownQuestionAnswerException;
 use App\Models\Answer;
 use App\Models\Question;
-use App\Repositories\ProductRepositoryInterface;
 use App\Repositories\QuestionRepositoryInterface;
 use Illuminate\Support\Collection;
 
 class EvaluateAnswersAction implements EvaluateAnswersActionInterface
 {
-    protected Collection $products;
-
-    protected Collection $questions;
-
-    public function __construct(
-        protected ProductRepositoryInterface $productRepository,
-        protected QuestionRepositoryInterface $questionRepository
-    ) {
-        $this->products = $this->productRepository->get()->keyBy('id');
-        $this->questions = $this->questionRepository->get()->keyBy('id');
-    }
+    public function __construct(protected QuestionRepositoryInterface $questionRepository) {}
 
     public function evaluate(array $data): Collection
     {
+        $questions = $this->questionRepository->get()->keyBy('id');
         $answersLookup = $this->createAnswersLookup($data['answers']);
 
         $recommended = collect([]);
         $excluded = collect([]);
 
-        $question = $this->questions->first();
+        $question = $questions->first();
 
         while ($question) {
             $answer = $this->getAnswerToQuestion($question, $answersLookup);
@@ -38,8 +28,8 @@ class EvaluateAnswersAction implements EvaluateAnswersActionInterface
             $recommended = $recommended->merge($answer->productsRecommended)->unique();
             $excluded = $excluded->merge($answer->productsExcluded)->unique();
 
-            $question = isset($this->questions[$answer->next_question_id])
-                ? $this->questions[$answer->next_question_id]
+            $question = isset($questions[$answer->next_question_id])
+                ? $questions[$answer->next_question_id]
                 : null;
         }
 

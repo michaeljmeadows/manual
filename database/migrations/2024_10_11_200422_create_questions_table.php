@@ -13,9 +13,12 @@ return new class extends Migration
     {
         Schema::create('questions', function (Blueprint $table) {
             $table->id();
-            $table->string('number')->unique();
-            $table->string('text')->unique();
+            $table->integer('number');
+            $table->string('part')->nullable();
+            $table->string('text');
             $table->timestamps();
+
+            $table->unique(['number', 'part']);
         });
     }
 

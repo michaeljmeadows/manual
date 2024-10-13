@@ -18,6 +18,7 @@ class QuestionFactory extends Factory
     {
         return [
             'number' => fake()->unique()->randomNumber(),
+            'part' => fake()->randomLetter(),
             'text' => fake()->sentence(),
         ];
     }

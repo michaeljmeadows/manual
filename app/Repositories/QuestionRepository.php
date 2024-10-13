@@ -19,7 +19,7 @@ class QuestionRepository implements QuestionRepositoryInterface
                     'answers.nextQuestion',
                     'answers.productsRecommended',
                     'answers.productsExcluded',
-                ])->orderBy('number')->get();
+                ])->orderBy('number')->orderBy('part')->get();
             },
         );
     }
