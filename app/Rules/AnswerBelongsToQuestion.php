@@ -2,12 +2,10 @@
 
 namespace App\Rules;
 
-use App\Repositories\QuestionRepositoryInterface;
 use Closure;
 use Illuminate\Contracts\Validation\DataAwareRule;
-use Illuminate\Contracts\Validation\ValidationRule;
 
-class AnswerBelongsToQuestion implements DataAwareRule, ValidationRule
+class AnswerBelongsToQuestion extends QuestionnaireAwareRule implements DataAwareRule
 {
     /**
      * All of the data under validation.
@@ -15,8 +13,6 @@ class AnswerBelongsToQuestion implements DataAwareRule, ValidationRule
      * @var array<string, mixed>
      */
     protected $data = [];
-
-    public function __construct(protected QuestionRepositoryInterface $questionRepository) {}
 
     /**
      * Run the validation rule.
@@ -27,7 +23,7 @@ class AnswerBelongsToQuestion implements DataAwareRule, ValidationRule
     {
         $answerId = $value;
         $index = $this->getArrayIndex($attribute);
-        
+
         $questionAttribute = str_replace('answer', 'question', $attribute);
 
         if (! isset($this->data['answers'][$index]['questionId'])) {
@@ -40,7 +36,7 @@ class AnswerBelongsToQuestion implements DataAwareRule, ValidationRule
 
         $questions = $this->questionRepository->get()->keyBy('id');
 
-        if ($questions[$questionId]->answers->contains('id', $answerId)) {
+        if (isset($questions[$questionId]) && $questions[$questionId]->answers->contains('id', $answerId)) {
             return;
         }
 

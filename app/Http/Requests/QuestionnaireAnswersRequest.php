@@ -4,6 +4,8 @@ namespace App\Http\Requests;
 
 use App\Repositories\QuestionRepositoryInterface;
 use App\Rules\AnswerBelongsToQuestion;
+use App\Rules\AnswerExistsInCachedData;
+use App\Rules\QuestionExistsInCachedData;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -26,12 +28,14 @@ class QuestionnaireAnswersRequest extends FormRequest
      */
     public function rules(QuestionRepositoryInterface $questionRepository): array
     {
+        $questionExistsInCachedData = new QuestionExistsInCachedData($questionRepository);
+        $answerExistsInCachedData = new AnswerExistsInCachedData($questionRepository);
         $answerBelongsToQuestion = new AnswerBelongsToQuestion($questionRepository);
 
         return [
             'answers' => ['required', 'array', 'min:1'],
-            'answers.*.questionId' => ['required', 'integer', 'exists:questions,id'],
-            'answers.*.answerId' => ['required', 'integer', 'exists:answers,id', $answerBelongsToQuestion],
+            'answers.*.questionId' => ['required', 'integer', $questionExistsInCachedData],
+            'answers.*.answerId' => ['required', 'integer', $answerExistsInCachedData, $answerBelongsToQuestion],
         ];
     }
 
